@@ -2,12 +2,8 @@
 
 a lua plugin for managing your marks *automatically* using buffer comments
 
-> early stage todo
-[x] internal structure
-[ ] telescope integration
-[ ] config options
-[ ] header types
-[ ] is it any good
+> [!CAUTION]
+> early stage, expect incompatible plugins & things breaking
 
 ### Why
 
@@ -25,14 +21,14 @@ I had to manage multiple files of the same structure and edit only the headers b
 
 - [nvim-treesitter/nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) is required
 
-### [lazy.nvim](https://github.com/folke/lazy.nvim)
+### Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
 {
   "shateq/mark-comments.nvim",
-  dependencies = {
-    "nvim-treesitter/nvim-treesitter",
-  },
+  dependencies = { "nvim-treesitter/nvim-treesitter" },
+  -- lazy loading support
+  -- event = { "BufWinEnter", "BufEnter" },
   opts = {},
 }
 ```
@@ -51,16 +47,25 @@ first letter (a-z) after the denominator is a mark name
 May mark be set on the first columen of the line above, use `b
 ```
 
-### Features
+## Features
 
-> completed only
+> [!NOTE] 
+> TODO
+
+- [x] internal structure
+- [ ] telescope integration
+- [ ] config options
+- [ ] header types
+- [ ] is it any good
+- [ ] docs
 
 ### Integrations
 
+> [!NOTE] 
+> TODO telescope choose only defined marks/headers
+
 - Treesitter for comment detection
 
-TODO: telescope choose only defined marks/headers
-
-### Pairs well with
+## Pairs well with
 
 - [dimtion/guttermarks.nvim](https://github.com/dimtion/guttermarks.nvim)
