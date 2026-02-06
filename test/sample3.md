@@ -4,9 +4,9 @@ josh, we are cats
 
 // m:de sample 2 splendid
 
-// M:e sample 2 splendid
+// m:e sample 2 splendid
 Comment is below, deadly serious
-  <!-- enoieh -->
+  <!-- m:enoieh -->
 gone
 //m: 2
 // m:           h
