@@ -9,56 +9,60 @@ M._augroup = nil
 ---@type boolean
 M.enabled = false
 
+--- Deletes all marks local to buffer
+M.del_marks = function()
+  vim.cmd("silent! delmarks!")
+end
+
 --- Iterate lines and set marks accordingly
 M.set_marks = function(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  -- [debug] vim.notify(tostring(M.enabled))
 
   for idx, line in ipairs(lines) do
     -- for every non-empty line
     if line ~= "" then
       local start = line:find("[mM]:", 0, false)
-      if start and Utils.is_comment(bufnr, idx - 1, start - 1) then
-        -- match
-        for name in line:gmatch("[mM]: *([A-z])") do
-          vim.api.nvim_buf_set_mark(bufnr, name, idx, 0, {})
+      -- restrain from 'and' keyword leading to undefined behavior
+      if start then
+        -- [debug] vim.notify("found m on " .. tostring(idx))
+
+        if Utils.is_comment(bufnr, idx - 1, start - 1) then
+          -- match
+          for name in line:gmatch("[mM]: *([A-z])") do
+            vim.api.nvim_buf_set_mark(bufnr, name, idx, 0, {})
+          end
         end
       end
     end
   end
 end
 
---- Deletes all marks local to buffer
-M.del_marks = function()
-  vim.cmd("silent! delmarks!")
+-- TODO: check what other plugins are broken
+--- Checks for set_marks
+local set_buf_marks = function()
+  local bufnr = vim.api.nvim_get_current_buf()
+  -- guards
+  if not M.enabled then return end
+  -- pass only normal buffers
+  if Utils.get_bt(bufnr) ~= "" then return end
+  -- no support for unknown filetypes
+  -- if Utils.is_special_buffer(bufnr) then return end
+  if Utils.get_ft(bufnr) == "" then return end
+  -- [debug] vim.notify(tostring(M.enabled))
+  M.set_marks(bufnr)
 end
 
 local register_autocmd = function()
   M._augroup = vim.api.nvim_create_augroup("MarkComments", {})
 
-  local callback = function()
-    local bufnr = vim.api.nvim_get_current_buf()
-    -- guards
-    if not M.enabled then return end
-    -- pass only normal buffers
-    if Utils.get_bt(bufnr) ~= "" then return end
-    -- no support for unknown filetypes
-    if Utils.get_ft(bufnr) == "" then return end
-
-    -- TODO: check what other plugins are broken
-    -- if Utils.is_special_buffer(bufnr) then return end
-    M.set_marks(bufnr)
-  end
-
-  vim.api.nvim_create_autocmd("BufEnter", {
+  -- "BufEnter"
+  vim.api.nvim_create_autocmd({ "BufWritePost", "FileType" }, {
+    pattern = "*",
     group = M._augroup,
-    callback = callback,
-    desc = "Write local marks when entering the buffer"
-  })
-  vim.api.nvim_create_autocmd("BufWritePost", {
-    group = M._augroup,
-    callback = callback,
-    desc = "Write local marks after writing the buffer"
+    callback = set_buf_marks,
+    desc = "Write local marks for current buffer"
   })
 end
 
@@ -74,6 +78,8 @@ M.setup = function(opts)
 
   M.enabled = true
   register_autocmd()
+
+  -- vim.schedule(function() set_buf_marks() end)
 end
 
 --- Remove any registered plugin autocommands, change its status to disabled
