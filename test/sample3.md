@@ -1,16 +1,21 @@
-# sample 2 splendid
+# sample 2
+<!-- m:3 -->
 
-josh, we are cats
+> splendid
+> josh, we are cats
+// m:de is not a comment in markdown
+// m:e also
 
-// m:de sample 2 splendid
+## Treesitter interprets codeblock comments
+```lua
+-- m:c see?
+M:e
+-- M:d see?
 
-// m:e sample 2 splendid
-Comment is below, deadly serious
-  <!-- m:enoieh -->
+<!-- M:a -->
+^^^ this is mixing, but allowed by treesitter
+```
+
+### Comment is below
+<!-- m:enoieh -->
 gone
-//m: 2
-// m:           h
-sample 2 splendid
-
-josh, we are cats
-o

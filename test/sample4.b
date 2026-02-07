@@ -1,14 +1,10 @@
-sample 2 splendid
+unrecognized filetype
+// vibe assummed comment M:c
 
-josh, we are cats
+m:a
+     m:b
 
-// m:de sample 2 splendid
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras ac purus in libero hendrerit placerat sed eu augue.
+Aliquam non tortor augue. Aenean in leo vitae sapien dapibus suscipit. Aenean commodo felis vel ligula tincidunt, sit amet bibendum est scelerisque. Vivamus vulputate iaculis nunc vel convallis.
+// m:d
 
-// M:e sample 2 splendid
-josh, we are cats
-
-sample 2 splendid
-
-josh, we are cats
-o
-// m:  h
