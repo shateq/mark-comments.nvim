@@ -17,22 +17,28 @@ local action_state = require "telescope.actions.state"
 local marked = function(opts)
   opts = opts or {}
   local bufnr = vim.api.nvim_get_current_buf()
+  local fname = vim.api.nvim_buf_get_name(bufnr)
   local marks = vim.fn.getmarklist(bufnr)
+
+  local results = {}
+  for _, m in ipairs(marks) do
+    -- only letter mark
+    if m.mark:match("%a") then
+      table.insert(results, { m.mark:sub(2), m.pos })
+    end
+  end
+  vim.notify(vim.inspect(results[2]))
 
   if #marks < 1 then
     vim.notify("No marks to search through", 3)
     return
   end
 
-  local results = {}
-  for _, m in ipairs(marks) do
-    table.insert(results, { m.mark:sub(2), m.pos })
-  end
-
-
   Pickers.new(opts, {
+    preview_title = "Current buffer",
     prompt_title = "Mark prompt",
     results_title = "Markers",
+
     finder = Finders.new_table {
       results = results,
       entry_maker = function(entry)
@@ -40,18 +46,21 @@ local marked = function(opts)
           value = entry,
           display = entry[1],
           ordinal = entry[1],
+          filename = fname,
+          lnum = entry[2][2]
         }
       end
     },
+
+    previewer = Conf.grep_previewer(opts),
     sorter = Conf.generic_sorter(opts),
-    -- previewer = Conf.grep_previewer(opts),
+
     attach_mappings = function(prompt_bufnr, map)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
         local selection = action_state.get_selected_entry()
-
-        vim.cmd("'" .. selection.value[1])
         -- Could also use vim.api.nvim_win_set_cursor()
+        vim.cmd("'" .. selection.value[1])
       end)
       return true
     end,
@@ -64,4 +73,4 @@ marked(
 )
 
 -- require('telescope').load_extension('fzy_native')
-return telescope.register_extension({ exports = { ["mark-comments"] = marked, marked = marked } })
+-- return telescope.register_extension({ exports = { ["mark-comments"] = marked, marked = marked } })
