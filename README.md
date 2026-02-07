@@ -27,8 +27,6 @@ I had to manage multiple files of the same structure and edit only the headers b
   "shateq/mark-comments.nvim",
   -- optional, supports more parsers 
   -- dependencies = { "nvim-treesitter/nvim-treesitter" },
-  -- lazy loading supported
-  event = { "BufWinEnter", "BufEnter", "BufWritePost" },
   opts = {},
 }
 ```
@@ -66,7 +64,6 @@ Mark `s` created on the line above for quick traversal
 - [x] is it any good
 - [ ] docs
 - [ ] add photo
-- [ ] study global marks and number marks
 
 ### Integrations
 
