@@ -17,7 +17,6 @@ local action_state = require "telescope.actions.state"
 local marked = function(opts)
   opts = opts or {}
   local bufnr = vim.api.nvim_get_current_buf()
-  local fname = vim.api.nvim_buf_get_name(bufnr)
   local marks = vim.fn.getmarklist(bufnr)
 
   local results = {}
@@ -27,13 +26,13 @@ local marked = function(opts)
       table.insert(results, { m.mark:sub(2), m.pos })
     end
   end
-  vim.notify(vim.inspect(results[2]))
 
-  if #marks < 1 then
+  if #results < 1 then
     vim.notify("No marks to search through", 3)
     return
   end
 
+  local fname = vim.api.nvim_buf_get_name(bufnr)
   Pickers.new(opts, {
     preview_title = "Current buffer",
     prompt_title = "Mark prompt",
@@ -55,7 +54,7 @@ local marked = function(opts)
     previewer = Conf.grep_previewer(opts),
     sorter = Conf.generic_sorter(opts),
 
-    attach_mappings = function(prompt_bufnr, map)
+    attach_mappings = function(prompt_bufnr, _)
       actions.select_default:replace(function()
         actions.close(prompt_bufnr)
         local selection = action_state.get_selected_entry()
@@ -66,11 +65,7 @@ local marked = function(opts)
     end,
   }):find()
 end
+-- marked(require("telescope.themes").get_dropdown {})
 
--- m:c
-marked(
-  require("telescope.themes").get_dropdown {}
-)
-
--- require('telescope').load_extension('fzy_native')
--- return telescope.register_extension({ exports = { ["mark-comments"] = marked, marked = marked } })
+-- require('telescope').load_extension('mark-comments')
+return telescope.register_extension({ exports = { ["mark-comments"] = marked } })
