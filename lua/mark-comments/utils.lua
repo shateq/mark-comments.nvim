@@ -81,4 +81,12 @@ local function is_treesitter_lang(bufnr)
   return lang ~= ""
 end
 
+--- GutterMarks.nvim integration
+function M.refresh_gutter()
+  local has_guttermarks, guttermarks = pcall(require, "guttermarks")
+  if has_guttermarks then
+    vim.schedule(guttermarks.refresh)
+  end
+end
+
 return M

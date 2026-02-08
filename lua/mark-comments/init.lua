@@ -25,6 +25,8 @@ end
 M.del_marks = function(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   -- vim.cmd("silent! delmarks!")
+
+  if mark_names[bufnr] == {} then return end
   for _, m in ipairs(mark_names[bufnr]) do
     vim.api.nvim_buf_del_mark(bufnr, m)
   end
