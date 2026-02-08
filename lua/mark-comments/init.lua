@@ -1,7 +1,6 @@
 local M = {}
 
 local Utils = require("mark-comments.utils")
--- TODO cache
 
 ---@type number
 M._augroup = nil
@@ -30,7 +29,7 @@ M.del_marks = function(bufnr)
   for _, m in ipairs(mark_names[bufnr]) do
     vim.api.nvim_buf_del_mark(bufnr, m)
   end
-  mark_names[bufnr] = {}
+  mark_names[bufnr] = nil
 end
 
 --- Iterate lines and set marks accordingly
@@ -63,7 +62,6 @@ M.set_marks = function(bufnr)
   end
 end
 
--- TODO: check what other plugins are broken
 --- Checks for set_marks
 local set_buf_marks = function()
   local bufnr = vim.api.nvim_get_current_buf()
@@ -78,6 +76,7 @@ local set_buf_marks = function()
   M.set_marks(bufnr)
 end
 
+--- Assign autocmd group and register required autocommands
 local register_autocmd = function()
   M._augroup = vim.api.nvim_create_augroup("MarkComments", {})
 
@@ -90,12 +89,21 @@ local register_autocmd = function()
     end),
     desc = "Write local marks for current buffer"
   })
+
+  vim.api.nvim_create_autocmd("BufDelete", {
+    pattern = "*",
+    group = M._augroup,
+    callback = function(ev)
+      mark_names[ev.buf] = nil
+    end,
+    desc = "Remove cached marks for deleted buffer",
+  })
 end
 
-local disable_plugin = function()
+--- Remove namespace registered autocommands
+local remove_autocmd = function()
   pcall(vim.api.nvim_clear_autocmds, { group = M._augroup })
   pcall(vim.api.nvim_del_augroup_by_name, M._augroup)
-  M.enabled = false
 end
 
 --- Register plugin autocommands, change its status to enabled
@@ -109,6 +117,9 @@ M.setup = function(opts)
 end
 
 --- Remove any registered plugin autocommands, change its status to disabled
-M.disable = disable_plugin
+M.disable = function()
+  M.enabled = false
+  remove_autocmd()
+end
 
 return M
