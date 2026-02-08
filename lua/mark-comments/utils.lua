@@ -2,7 +2,7 @@ local M = {}
 
 ---Return buffer's filetype
 ---@param bufnr number
----@return filetype
+---@return string
 function M.get_ft(bufnr)
   -- local ft = vim.api.nvim_get_option_value("filetype", { buf = bufnr })
   local ft = vim.bo[bufnr].filetype
@@ -38,6 +38,16 @@ function M.is_comment(bufnr, row, col)
   return false
   -- TODO should we add fallback for no tresitter highlighter?
   -- if vim.treesitter isn't available its probably nvim 0.5
+end
+
+--- Insert if not exists
+---@param tbl table
+---@param value any
+function M.insert_if_absent(tbl, value)
+  for _, v in ipairs(tbl) do
+    if v == value then return end
+  end
+  table.insert(tbl, value)
 end
 
 --- Returns true if buffer isn't a 'working' buffer,

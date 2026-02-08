@@ -9,15 +9,35 @@ M._augroup = nil
 ---@type boolean
 M.enabled = false
 
+--- List of mark names for bufnr
+---@type table<number, string[]>
+local mark_names = {}
+
+--- Return list of generated marks for the current buffer
+---@param bufnr number
+---@return string[]
+M.get_marks = function(bufnr)
+  return mark_names[bufnr]
+end
+
 --- Deletes all marks local to buffer
-M.del_marks = function()
-  vim.cmd("silent! delmarks!")
+---@param bufnr? number
+M.del_marks = function(bufnr)
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
+  -- vim.cmd("silent! delmarks!")
+  for _, m in ipairs(mark_names[bufnr]) do
+    vim.api.nvim_buf_del_mark(bufnr, m)
+  end
+  mark_names[bufnr] = {}
 end
 
 --- Iterate lines and set marks accordingly
+---@param bufnr? number
 M.set_marks = function(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+  mark_names[bufnr] = {}
+
   -- [debug] vim.notify(tostring(M.enabled))
 
   for idx, line in ipairs(lines) do
@@ -32,6 +52,8 @@ M.set_marks = function(bufnr)
           -- match
           for name in line:gmatch("[mM]: *([A-z])") do
             vim.api.nvim_buf_set_mark(bufnr, name, idx, 0, {})
+
+            Utils.insert_if_absent(mark_names[bufnr], name)
           end
         end
       end
