@@ -19,11 +19,19 @@ local marked = function(opts)
   local bufnr = vim.api.nvim_get_current_buf()
   local marks = vim.fn.getmarklist(bufnr)
 
+  local gen_marks = require("mark-comments").get_marks(bufnr)
+
   local results = {}
   for _, m in ipairs(marks) do
     -- only letter mark
     if m.mark:match("%a") then
-      table.insert(results, { m.mark:sub(2), m.pos })
+      local mname = m.mark:sub(2)
+
+      -- TODO configure with opts
+      -- only generated marks
+      if vim.tbl_contains(gen_marks, mname) then
+        table.insert(results, { mname, m.pos })
+      end
     end
   end
 
