@@ -26,7 +26,7 @@ M.del_marks = function(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   -- vim.cmd("silent! delmarks!")
 
-  if mark_names[bufnr] == {} then return end
+  if mark_names[bufnr] == nil then return end
   for _, m in ipairs(mark_names[bufnr]) do
     vim.api.nvim_buf_del_mark(bufnr, m)
   end
@@ -81,11 +81,13 @@ end
 local register_autocmd = function()
   M._augroup = vim.api.nvim_create_augroup("MarkComments", {})
 
-  -- "BufEnter"
-  vim.api.nvim_create_autocmd({ "BufWritePost", "FileType" }, {
+  --M:a, "FileType"
+  vim.api.nvim_create_autocmd({ "BufWritePost", "BufWinEnter", "BufReadPost" }, {
     pattern = "*",
     group = M._augroup,
-    callback = set_buf_marks,
+    callback = vim.schedule_wrap(function()
+      set_buf_marks()
+    end),
     desc = "Write local marks for current buffer"
   })
 end
