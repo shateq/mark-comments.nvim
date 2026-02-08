@@ -4,6 +4,7 @@ a lua plugin for managing your marks *automatically* using buffer comments
 
 > [!CAUTION]
 > early stage, expect incompatible plugins & things breaking
+> Please report incompatible plugin menus in Issues tab
 
 ### Why
 <!-- m:a -->
@@ -27,9 +28,11 @@ I had to manage multiple files of the same structure and edit only the headers b
   "shateq/mark-comments.nvim",
   -- optional, supports more parsers 
   -- dependencies = { "nvim-treesitter/nvim-treesitter" },
-  opts = {},
+  opts = {}, -- required
 }
 ```
+
+Check [integrations](#integrations) to access more functionality.
 
 ## Usage
 
@@ -37,6 +40,7 @@ Every commented line that contains `m:letter`, e.g. `m:a` will create a mark on 
 Denominators are `m:` and `M:`, first letter after a denominator is the name for a new mark
 
 The `:MarkComments` command reloads the plugin
+`:MarkCommentsReset` resets generated marks
 
 ### Examples
 
@@ -57,20 +61,32 @@ Mark `s` created on the line above for quick traversal
 > [!NOTE] 
 > TODO
 
-- [x] internal structure
-- [ ] telescope integration
+- [x] Set marks automatically
+- [x] Pure API
+- [x] Telescope.nvim integration
 - [ ] config options
-- [ ] header types
-- [x] is it any good
+- [ ] header comments
 - [ ] docs
 - [ ] add photo
 
-### Integrations
+## Integrations
 
-> [!NOTE] 
-> TODO telescope choose only defined marks/headers
+### **Telescope.nvim integration**
 
-- Treesitter is strongly recommended for comment detection of all filetypes
+Put the following snippet somewhere after calling `setup()` for telescope.nvim.
+To access the generated marks picker you may use `:Telescope mark-comments` command or create a binding.
+In order to configure the picker follow [telescope's readme](https://github.com/nvim-telescope/telescope.nvim/blob/master/README.md).
+
+```lua
+require "telescope".setup() -- probably already there
+
+require "telescope".load_extension("mark-comments")
+```
+
+### **GutterMarks.nvim integration**
+
+Automatically refreshes the gutter if guttermarks.nvim is installed.
+No configuration needed.
 
 ## Pairs well with
 
