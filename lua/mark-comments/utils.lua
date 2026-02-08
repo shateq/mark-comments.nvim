@@ -1,3 +1,5 @@
+---Utils comntain only PURE functions,
+---any side effects should be put in doc comment
 local M = {}
 
 ---Return buffer's filetype
@@ -19,6 +21,7 @@ function M.get_bt(bufnr)
 end
 
 --- Returns true if treesitter captures comment on passed position
+--- Plugin will support only installed languages fallback parsers are sideeffects
 ---@param bufnr number
 ---@param row number
 ---@param col number
@@ -67,6 +70,7 @@ function M.is_special_buffer(bufnr)
 
   return p or r or o
   -- TODO: not only oil and telescope are affected
+  --proposed bufname:match(".*://") ~= nil
   -- vim.api.nvim_buf_get_name(bufnr):match('^oil://') ~= nil
 end
 
@@ -89,4 +93,28 @@ function M.refresh_gutter()
   end
 end
 
+--- Return next mark not set in current buffer
+--- Should return b if marks a and c are defined
+--- Returns empty string if there is no free marks
+---@param bufnr number
+---@return string
+function M.next_free_mark(bufnr)
+  local marks = vim.fn.getmarklist(bufnr)
+  local letter_marks = vim.iter(marks)
+      :map(function(m)
+        return m.mark:match("%l", 2)
+      end)
+      :totable()
+
+  -- string.byte for no magic numbers in code
+  for ch = string.byte("a"), string.byte("z") do
+    local letter = string.char(ch)
+    if not vim.tbl_contains(letter_marks, letter) then
+      return letter
+    end
+  end
+  return ""
+end
+
+--M:M
 return M
