@@ -37,7 +37,10 @@ end
 M.set_marks = function(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+
+  -- if mark_names[bufnr] == nil then
   mark_names[bufnr] = {}
+  -- end
 
   -- [debug] vim.notify(tostring(M.enabled))
 
@@ -76,15 +79,70 @@ local set_buf_marks = function()
   M.set_marks(bufnr)
 end
 
+--- Automatically mark headers, feature
+---@param bufnr? number
+M.set_header_marks = function(bufnr)
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+
+  if mark_names[bufnr] == nil then
+    mark_names[bufnr] = {}
+  end
+
+  -- %p - punctuation marks also capture funtctions
+  -- GOAL IS id like //2  (comment with just number to be considered header)
+  -- how to check if comment empty
+  local header_def = "%d+%.%d? +"
+  -- it doesnt remove old fucks from before write
+  -- idea, do custom autocmd only for write where it also refreshes
+
+  -- TODO get rid of goto
+  for idx, line in ipairs(lines) do
+    if line == "" then goto continue end
+    local start = line:find(header_def, 0, false)
+
+    if not start then goto continue end
+    --
+    if not Utils.is_comment(bufnr, idx - 1, start - 1) then goto continue end
+    --
+    local name = Utils.next_free_mark(bufnr)
+    vim.notify("header on " .. tostring(idx))
+
+    -- m.pos -> [bufnum, lnum, col, off]
+    local occupied_rows = vim.iter(vim.fn.getmarklist(bufnr))
+        :filter(function(m)
+          return m.mark:match("%l", 2)
+        end)
+        :map(function(m)
+          return m.pos[2]
+        end)
+        :totable()
+
+    if not vim.tbl_contains(occupied_rows, idx) then
+      vim.notify("row " .. tostring(idx))
+
+      vim.api.nvim_buf_set_mark(bufnr, name, idx, 0, {})
+      Utils.insert_if_absent(mark_names[bufnr], name)
+    end
+
+    ::continue::
+  end
+
+  Utils.refresh_gutter()
+end
+
 --- Assign autocmd group and register required autocommands
 local register_autocmd = function()
   M._augroup = vim.api.nvim_create_augroup("MarkComments", {})
 
   --M:a, "FileType"
-  vim.api.nvim_create_autocmd({ "BufWritePost", "BufWinEnter", "BufReadPost" }, {
+  -- BufWinEnter ran on completion window opening
+  -- BufEnter ran on clicking on the buffer window
+  vim.api.nvim_create_autocmd({ "BufWritePost", "BufAdd", "BufReadPost" }, {
     pattern = "*",
     group = M._augroup,
     callback = vim.schedule_wrap(function()
+      -- M.set_header_marks()
       set_buf_marks()
     end),
     desc = "Write local marks for current buffer"
