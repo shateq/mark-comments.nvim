@@ -166,7 +166,21 @@ end
 
 --- Register plugin autocommands, change its status to enabled
 M.setup = function(opts)
+  -- TODO Define default opts and things to be configured
+
+  ---@class mark-comments.Options
+  ---@field offset number?: Provide mark offset to be placed relatively to the line with mark
+  ---@field preserve_position boolean?: Should place mark on the actual comment or on the first column of the row
+  ---@field denominator vim.regex?: Mark denominator to be used
+  ---@field ignore_filetypes vim.regex[]?: Filetypes to ignore in regex
+
   opts = opts or {}
+
+  -- local defaults = {}
+
+  -- need to create global options
+  -- options = vim.tbl_deep_extend("force", defaults, opts or {})
+
 
   M.enabled = true
   register_autocmd()
